@@ -1,10 +1,6 @@
-import { useState } from 'react';
-import './App.css';
-import reactLogo from './assets/react.svg';
+import './Home.css';
 
-function App() {
-  const [count, setCount] = useState(0);
-
+function Home() {
   return (
     <div className="App">
       <div>
@@ -16,7 +12,7 @@ function App() {
           />
         </a>
         <a href="https://reactjs.org" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
+          <img src="/react.svg" className="logo react" alt="React logo" />
         </a>
       </div>
       <h1>React + Typescript</h1>
@@ -29,4 +25,4 @@ function App() {
   );
 }
 
-export default App;
+export default Home;
