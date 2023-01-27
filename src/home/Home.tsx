@@ -1,6 +1,9 @@
+import * as React from 'react';
 import './Home.css';
-
-function Home() {
+interface HomeProps {
+  children: React.ReactNode;
+}
+function Home({ children }: HomeProps) {
   return (
     <div className="App">
       <div>
@@ -21,6 +24,7 @@ function Home() {
           Edit <code>src/**/*.tsx</code> and see how TS Complaining
         </p>
       </div>
+      {children}
     </div>
   );
 }
