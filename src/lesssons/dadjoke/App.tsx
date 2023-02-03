@@ -1,3 +1,4 @@
+import { ReactElement } from 'react';
 import useFetch from './useFetch';
 const url = ' https://icanhazdadjoke.com/';
 interface DadJoke {
@@ -5,7 +6,7 @@ interface DadJoke {
   joke: string;
   status: number;
 }
-function DadJoke() {
+function DadJoke(): ReactElement {
   const { data, error, loading } = useFetch<DadJoke>({
     url,
     options: {
@@ -16,7 +17,10 @@ function DadJoke() {
   });
   console.log({ data, error, loading });
 
-  return <div>App</div>;
+  if (loading) return <div>loading.....</div>;
+  if (error) return <div>{error.message}</div>;
+  if (data) return <div className="mt-6">{data.joke}</div>;
+  return <div>No Joke Found</div>;
 }
 
 export default DadJoke;

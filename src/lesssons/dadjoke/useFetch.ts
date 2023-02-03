@@ -28,7 +28,7 @@ const fetchReducer =
       case 'error':
         return { loading: false, data: null, error: action.error };
       case 'success':
-        return { loading: true, data: action.data, error: null };
+        return { loading: false, data: action.data, error: null };
       default: {
         const exhaustiveCheck: never = action;
         throw new Error(
