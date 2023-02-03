@@ -1,13 +1,19 @@
-import { ReactElement, useEffect, useReducer } from 'react';
+import React, {
+  ReactElement,
+  ReactNode,
+  useCallback,
+  useEffect,
+  useReducer,
+} from 'react';
 
 type CategoryType = 'water' | 'stone' | 'metal' | 'gaz';
-
-interface Product {
+///if we do type vs interface we can have a snapshot preview when we hover over a type declaration
+type Product = {
   readonly id: string;
   name: string;
   category: CategoryType;
   price: number;
-}
+};
 
 interface ProductState {
   products: Product[];
@@ -39,11 +45,14 @@ type ActionType = AddAction | RemoveAction | SetProductsAction;
 function reducer(state: ProductState, action: ActionType): ProductState {
   switch (action.type) {
     case 'add': {
-      return { ...state, products: [...state.products, action.product] };
+      return {
+        ...state,
+        products: [...state.products, action.product],
+      };
     }
     case 'remove': {
       const products = state.products.filter((item) => item.id !== action.id);
-      console.log(state);
+      console.log(state, 'remove-render');
       return {
         ...state,
         products,
@@ -66,12 +75,16 @@ function reducer(state: ProductState, action: ActionType): ProductState {
 function useProduct(): ProductState & utilits {
   const [state, dispatch] = useReducer(reducer, intialState);
 
-  const addItem: utilits['addItem'] = (product: Product) =>
+  const addItem: utilits['addItem'] = useCallback((product: Product) => {
     dispatch({ type: 'add', product });
-  const removeItem: utilits['removeItem'] = (id: string) =>
+  }, []);
+  const removeItem: utilits['removeItem'] = useCallback((id: string) => {
     dispatch({ type: 'remove', id });
-  const setProduct: utilits['setProduct'] = (products: Product[]) =>
-    dispatch({ type: 'set-products', products });
+  }, []);
+  const setProduct: utilits['setProduct'] = useCallback(
+    (products: Product[]) => dispatch({ type: 'set-products', products }),
+    [],
+  );
 
   return {
     addItem,
@@ -83,13 +96,12 @@ function useProduct(): ProductState & utilits {
 // ----------------------------------------------------------------------
 
 function AddRemoveItemButton({ product }: { product: Product }): ReactElement {
-  const { addItem, removeItem } = useProduct();
+  const { addItem, removeItem } = useProductContext();
   return (
     <>
       <button onClick={() => addItem(product)}>Add {product.name}</button>
       <button
         onClick={() => {
-          console.log('remove');
           removeItem(product.id);
         }}
       >
@@ -100,15 +112,38 @@ function AddRemoveItemButton({ product }: { product: Product }): ReactElement {
 }
 // ----------------------------------------------------------------------
 //root point
+const ProductContext = React.createContext<(ProductState & utilits) | null>(
+  null,
+);
+const ProductProvider = ({ children }: { children: ReactNode }) => {
+  const state = useProduct();
+  return (
+    <ProductContext.Provider value={state}>{children}</ProductContext.Provider>
+  );
+};
+const useProductContext = () => {
+  const context = React.useContext(ProductContext);
+  if (!context)
+    throw new Error(
+      'useProductContext must used within ♦ <ProductProvider>..</ProductProvider> ',
+    );
+  return context;
+};
 export function CardProducts(): ReactElement {
-  const { products, setProduct } = useProduct();
+  return (
+    <ProductProvider>
+      <App />
+    </ProductProvider>
+  );
+}
+const App = () => {
+  const { products, setProduct } = useProductContext();
 
   useEffect(() => {
     getProducts().then((products) => {
       setProduct(products);
     });
   }, []);
-  console.log({ products });
   return (
     <>
       {products.map((item) => (
@@ -116,7 +151,7 @@ export function CardProducts(): ReactElement {
       ))}
     </>
   );
-}
+};
 // ----------------------------------------------------------------------
 function CardProduct({ product }: { product: Product }) {
   return (
@@ -135,6 +170,7 @@ function getProducts(): Promise<Product[]> {
 }
 // exaustive Check
 // Externally-visible signature
+// eslint-disable-next-line
 function exaustiveCheck(action: never): never;
 // Implementation signature
 function exaustiveCheck(action: ActionType) {
