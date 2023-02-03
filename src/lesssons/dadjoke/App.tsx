@@ -15,11 +15,15 @@ function DadJoke(): ReactElement {
       },
     },
   });
-  console.log({ data, error, loading });
 
   if (loading) return <div>loading.....</div>;
   if (error) return <div>{error.message}</div>;
-  if (data) return <div className="mt-6">{data.joke}</div>;
+  if (data)
+    return (
+      <div style={{ marginTop: '1.3rem', textDecoration: 'underline ' }}>
+        😆 {data.joke}{' '}
+      </div>
+    );
   return <div>No Joke Found</div>;
 }
 

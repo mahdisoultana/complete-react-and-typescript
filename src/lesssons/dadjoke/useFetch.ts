@@ -1,7 +1,5 @@
 import { useEffect, useReducer } from 'react';
-type Joke = {
-  joke: string;
-};
+
 interface State<T> {
   loading: boolean;
   data: T | null;
