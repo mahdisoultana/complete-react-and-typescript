@@ -16,17 +16,18 @@ type SuccessAction<T> = {
   type: 'success';
   data: T;
 };
-type JokeActions<T> = LoadingAction | ErrorAction | SuccessAction<T>;
+type FetchActions<T> = LoadingAction | ErrorAction | SuccessAction<T>;
+
 const fetchReducer =
   <T>() =>
-  (state: State<T>, action: JokeActions<T>): State<T> => {
+  (state: State<T>, action: FetchActions<T>): State<T> => {
     switch (action.type) {
       case 'loading':
-        return { loading: true, data: null, error: null };
+        return { ...state, loading: true, data: null, error: null };
       case 'error':
-        return { loading: false, data: null, error: action.error };
+        return { ...state, loading: false, data: null, error: action.error };
       case 'success':
-        return { loading: false, data: action.data, error: null };
+        return { ...state, loading: false, data: action.data, error: null };
       default: {
         const exhaustiveCheck: never = action;
         throw new Error(
@@ -35,7 +36,7 @@ const fetchReducer =
       }
     }
   };
-async function fetchJoke<T>(url: string, options: RequestInit): Promise<T> {
+async function fetchData<T>(url: string, options: RequestInit): Promise<T> {
   const jokes = await fetch(url, options).then((res) => res.json());
   return jokes;
 }
@@ -49,7 +50,7 @@ function useFetch<T>({ url, options }: { url: string; options?: RequestInit }) {
   });
   useEffect(() => {
     dispatch({ type: 'loading' });
-    fetchJoke<T>(url, { ...options })
+    fetchData<T>(url, { ...options })
       .then((res) => {
         dispatch({ type: 'success', data: res });
       })
